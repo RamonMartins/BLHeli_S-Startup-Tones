@@ -166,6 +166,46 @@ SET MCU_48MHZ=1
 call:compile
 SET /A ESCNO+=1
 
+SET ESC=S_L_
+SET MCU_48MHZ=0
+call:compile
+SET ESC=S_H_
+SET MCU_48MHZ=1
+call:compile
+SET /A ESCNO+=1
+
+SET ESC=T_L_
+SET MCU_48MHZ=0
+call:compile
+SET ESC=T_H_
+SET MCU_48MHZ=1
+call:compile
+SET /A ESCNO+=1
+
+SET ESC=U_L_
+SET MCU_48MHZ=0
+call:compile
+SET ESC=U_H_
+SET MCU_48MHZ=1
+call:compile
+SET /A ESCNO+=1
+
+SET ESC=V_L_
+SET MCU_48MHZ=0
+call:compile
+SET ESC=V_H_
+SET MCU_48MHZ=1
+call:compile
+SET /A ESCNO+=1
+
+SET ESC=W_L_
+SET MCU_48MHZ=0
+call:compile
+SET ESC=W_H_
+SET MCU_48MHZ=1
+call:compile
+SET /A ESCNO+=1
+
 goto :end
 
 

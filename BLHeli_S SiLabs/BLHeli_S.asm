@@ -127,6 +127,11 @@ O_			EQU 15	; X  X  RC X  CC MA MC MB    X  X  Cc Cp Bc Bp Ac Ap	Like D, but low
 P_			EQU 16	; X  X  RC MA CC MB MC X     X  Cc Bc Ac Cp Bp Ap X		
 Q_			EQU 17	; Cp Bp Ap L1 L0 X  RC X     X  MA MB MC CC Cc Bc Ac
 R_			EQU 18	; X  X  RC X  MC MB MA CC    X  X  Ac Bc Cc Ap Bp Cp
+S_			EQU 19  ; X  X  RC X  CC MA MC MB    X  X  Cc Cp Bc Bp Ac Ap    Like O, but com fets inverted
+T_			EQU 20	; RC X  MA X  MB CC MC X     X  X  Cp Bp Ap Ac Bc Cc
+U_			EQU 21	; MA MC CC MB RC L0 L1 L2    X  Cc Bc Ac Cp Bp Ap X	Like M, but with 3 LEDs
+V_			EQU 22	; Cc X  RC X  MC CC MB MA    X  Ap Ac Bp X  X  Bc Cp
+W_          EQU 23  ; RC MC MB X  CC MA X X      X  Ap Bp Cp X  X  X  X     Tristate gate driver
 
 ;**** **** **** **** ****
 ; Select the port mapping to use (or unselect all for use with external batch compile file)
@@ -148,6 +153,11 @@ R_			EQU 18	; X  X  RC X  MC MB MA CC    X  X  Ac Bc Cc Ap Bp Cp
 ;ESCNO EQU P_
 ;ESCNO EQU Q_
 ;ESCNO EQU R_
+;ESCNO EQU S_
+;ESCNO EQU T_
+;ESCNO EQU U_
+;ESCNO EQU V_
+;ESCNO EQU W_
 
 ;**** **** **** **** ****
 ; Select the MCU type (or unselect for use with external batch compile file)
@@ -230,6 +240,26 @@ ENDIF
 
 IF ESCNO == R_
 $include (R.inc)	; Select pinout R
+ENDIF
+
+IF ESCNO == S_
+$include (S.inc)	; Select pinout S
+ENDIF
+
+IF ESCNO == T_
+$include (T.inc)        ; Select pinout T
+ENDIF
+
+IF ESCNO == U_
+$include (U.inc)        ; Select pinout U
+ENDIF
+
+IF ESCNO == V_
+$include (V.inc)        ; Select pinout V
+ENDIF
+
+IF ESCNO == W_
+$include (W.inc)        ; Select pinout W
 ENDIF
 
 
