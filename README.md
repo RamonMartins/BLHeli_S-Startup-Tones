@@ -1,6 +1,4 @@
-# BLHeli_S-Startup-Tones
-
-#### --> This is only for ESCs BLHeli_S SiLabs 8 bits <--
+#### --> This is only for ESCs BLHeli_S SiLabs 8 bits, NOT FOR BLHELI32!!! <--
 
 This Project is just a update of the Startup Tones Project: https://github.com/cleanflight/blheli-multishot/tree/master/BLHeli_S%20SiLabs
 
