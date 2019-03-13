@@ -1,10 +1,10 @@
 #### --> This is only for ESCs BLHeli_S SiLabs 8 bits, NOT FOR BLHELI32!!! <--
 
-This Project is just a update of the Startup Tones Project: https://github.com/cleanflight/blheli-multishot/tree/master/BLHeli_S%20SiLabs
+This Project is just a update of the <a href="https://github.com/cleanflight/blheli-multishot/tree/master/BLHeli_S%20SiLabs" target"_blank">Startup Tones Project</a>, so the credits go to them.
 
-The contributor stopped update the files, so i continued the project, BUT I WONT DO ANY MODIFICATION IN THE ORIGINAL PROJECT OF STARTUP TONES.
+The contributors stopped update the files, so i continued the project, BUT I WONT DO ANY MODIFICATION IN THE ORIGINAL PROJECT OF STARTUP TONES.
 
-The Startup Tones Project is based on the original project of BLHeli_S: https://github.com/bitdump/BLHeli/tree/master/BLHeli_S%20SiLabs
+The Startup Tones Project is based on the original project of <a href="https://github.com/bitdump/BLHeli/tree/master/BLHeli_S%20SiLabs">BLHeli_S</a>, so the credits go to them.
 
 ## Disclaimer
 This software is provided as is, use it at your own risk. ALWAYS REMOVE THE PROPELLERS and power your ESCs via a current-limiting device or power supply.
