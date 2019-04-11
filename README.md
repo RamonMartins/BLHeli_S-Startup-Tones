@@ -21,3 +21,6 @@ This software is provided as is, use it at your own risk. ALWAYS REMOVE THE PROP
 3. Connect the drone to PC, connect the battery to the drone.
 
 4. See this video to know how to change the firmware: <a href="https://www.youtube.com/watch?v=XJ4PkcRZ9JU" target="_blank">Click here</a>
+
+5. Select this option in the BLHeli Suite before connect your drone:
+<img src="https://user-images.githubusercontent.com/18702896/55975526-90f37180-5c60-11e9-8615-6c0881c9653e.png"/>
