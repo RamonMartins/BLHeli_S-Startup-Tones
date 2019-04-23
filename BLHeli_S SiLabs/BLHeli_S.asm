@@ -271,7 +271,7 @@ DEFAULT_PGM_STARTUP_PWR 				EQU 5 	; 1=0.031 2=0.047 3=0.063 4=0.094 5=0.125 6=0
 DEFAULT_PGM_COMM_TIMING				EQU 3 	; 1=Low 		2=MediumLow 	3=Medium 		4=MediumHigh 	5=High
 DEFAULT_PGM_DEMAG_COMP 				EQU 3 	; 1=Disabled	2=Low		3=High
 DEFAULT_PGM_DIRECTION				EQU 1 	; 1=Normal 	2=Reversed	3=Bidir		4=Bidir rev
-DEFAULT_PGM_BEEP_STRENGTH			EQU 91	; Beep strength
+DEFAULT_PGM_BEEP_STRENGTH			EQU 141	; Beep strength
 DEFAULT_PGM_BEACON_STRENGTH			EQU 80	; Beacon strength
 DEFAULT_PGM_BEACON_DELAY				EQU 3 	; 1=1m		2=2m			3=5m			4=10m		5=Infinite
 
@@ -342,11 +342,7 @@ Flags3:					DS	1			; State flags. NOT reset upon init_start
 PGM_DIR_REV			EQU 	0		; Programmed direction. 0=normal, 1=reversed
 PGM_BIDIR_REV		EQU 	1		; Programmed bidirectional direction. 0=normal, 1=reversed
 PGM_BIDIR				EQU 	2		; Programmed bidirectional operation. 0=normal, 1=bidirectional
-FET_SWAP				EQU 	3		; Flipped on/off during Beep Routine.		
-TONE_WAVE				EQU 	4			
-TONE_DIR				EQU 	5			
-CZ_TONES				EQU 	6	
-MUTE						EQU 	7	
+MUTE						EQU 	3	
 
 
 ;**** **** **** **** ****
@@ -484,7 +480,7 @@ Temp_Storage:				DS	48		; Temporary storage
 ;**** **** **** **** ****
 CSEG AT 1A00h            ; "Eeprom" segment
 EEPROM_FW_MAIN_REVISION		EQU	16		; Main revision of the firmware
-EEPROM_FW_SUB_REVISION		EQU	75		; Sub revision of the firmware
+EEPROM_FW_SUB_REVISION		EQU	76		; Sub revision of the firmware
 EEPROM_LAYOUT_REVISION		EQU	33		; Revision of the EEPROM layout
 
 Eep_FW_Main_Revision:		DB	EEPROM_FW_MAIN_REVISION			; EEPROM firmware main revision number
@@ -533,7 +529,7 @@ Eep_Pgm_LED_Control:		DB	DEFAULT_PGM_LED_CONTROL			; EEPROM copy of programmed L
 Eep_Dummy:				DB	0FFh							; EEPROM address for safety reason
 
 CSEG AT 1A60h
-Eep_Name:					DB	"16.75_Tones     "				; Name tag (16 Bytes)
+Eep_Name:					DB	"16.76_Tones     "				; Name tag (16 Bytes)
 
 ;**** **** **** **** ****
 Interrupt_Table_Definition		; SiLabs interrupts
@@ -2882,26 +2878,22 @@ comm_exit:
 ; No assumptions		
 ;		
 ;**** **** **** **** **** **** **** **** **** **** **** **** ****		
-beep_f1:	; Entry point 1, load beeper frequency 1 settings		
-	jb 	Flags3.CZ_TONES, beep_cz1		
+beep_f1:	; Entry point 1, load beeper frequency 1 settings			
 	mov	Temp3, #20	; Off wait loop length		
 	mov	Temp4, #200	; Number of beep pulses		
 	jmp	beep
 			
-beep_f2:	; Entry point 2, load beeper frequency 2 settings		
-	jb 	Flags3.CZ_TONES, beep_cz2		
+beep_f2:	; Entry point 2, load beeper frequency 2 settings			
 	mov	Temp3, #16		
 	mov	Temp4, #140		
 	jmp	beep	
 		
 beep_f3:	; Entry point 3, load beeper frequency 3 settings		
-	jb 	Flags3.CZ_TONES, beep_cz3		
 	mov	Temp3, #13		
 	mov	Temp4, #180		
 	jmp	beep
 			
 beep_f4:	; Entry point 4, load beeper frequency 4 settings		
-	jb 	Flags3.CZ_TONES, beep_cz4		
 	mov	Temp3, #11		
 	mov	Temp4, #200		
 			
@@ -2951,145 +2943,7 @@ beep_off:		; Fets off loop
 	BcomFET_off		; BcomFET off
 	ret
 
-
-;**** **** **** **** **** **** **** **** **** **** **** **** ****		
-;		
-; Tone Engine for Inc/Dec/Variable Tones		
-;		
-;**** **** **** **** **** **** **** **** **** **** **** **** ****		
-beep_cz1:				
-	mov	Temp3, #80   		; total tone play length				
-	mov	Temp5, #80   		; number of delay loops to set starting frequency, frequency will increase as count is decremented.				
-	mov Temp4, #5			; number of times to repeat tone at each fequency.				
-	mov Temp6, #20			; size of base delay (highest frequency tone ceiling)						
-	jmp mute_check		
-					
-beep_cz2:				
-	mov	Temp3, #50				
-	mov	Temp5, #40				
-	mov Temp4, #20				
-	mov Temp6, #40				
-	jmp mute_check		
-					
-beep_cz3:				
-	mov	Temp3, #60				
-	mov	Temp5, #180				
-	mov Temp4, #4				
-	mov Temp6, #10						
-	jmp mute_check		
-			
-beep_cz4:				
-	mov	Temp3, #150				
-	mov	Temp5, #50				
-	mov Temp4, #2				
-	mov Temp6, #30				
-	jmp mute_check
-			
-beep_beacon:		
-	mov Temp3, #100		; number of itterations of the tone loop to run.				
-	mov Temp5, #40		; starting tone (in number of delay cycles) for decrementing delay (increasing frequency)		
-	mov Temp4, #5		; number of times to repeat inner loop at each fequency before.				
-	mov Temp6, #15		; base delay		
-	jmp mute_check		
-			
-startup_wave1:				
-	mov	Temp1, #Pgm_Direction					
-	mov	A, @Temp1				
-	dec A				
-;	jnz startup_wave2				
-	setb Flags3.TONE_WAVE				
-	mov	Temp3, #200		; number of itterations of the tone loop to run.		
-	mov	Temp5, #50		; starting tone (in number of delay cycles) for decrementing delay (increasing frequency)				
-	mov Temp4, #3		; number of times to repeat inner loop at each fequency before.				
-	mov Temp6, #60		; base delay				
-	jmp mute_check		
-					
-startup_wave2:				
-	mov	Temp3, #200		; number of itterations of the tone loop to run.				
-	mov	Temp5, #80		; starting tone (in number of delay cycles) for decrementing delay (increasing frequency)				
-	mov Temp4, #5		; number of times to repeat inner loop at each fequency before.				
-	mov Temp6, #70		; base delay		
-			
-mute_check:		
-	jnb Flags3.MUTE, music_outer_loop		
-	ret			
-			
-music_outer_loop:				
-	mov A, Temp4				
-	mov Temp1, A			; load temp1 with temp4 value, work with temp1 preserve temp4.				
-	jnb Flags3.TONE_WAVE, no_wave				
-	jb Flags3.TONE_DIR, inc_tone				
-	dec Temp5				
-	mov A, Temp5				
-	cjne A, #1, music_inner_loop				
-	cpl Flags3.TONE_DIR				
-	jmp music_inner_loop				
-					
-inc_tone:				
-	inc Temp5				
-	mov A, Temp5				
-	cjne A, #50, music_inner_loop				
-	cpl Flags3.TONE_DIR				
-	jmp music_inner_loop				
-					
-no_wave:					
-	dec Temp5				; decrement frequency delay loop count					
-	mov A, Temp5 				
-	jnz music_inner_loop				
-	inc Temp5				
-					
-music_inner_loop:				
-	Mov A, Temp5 		; push variables onto the stack to preserve them during fet on/off macro				
-	Push ACC				
-	Mov A, Temp1				
-	Push ACC				
-	Mov A, Temp6				
-	Push ACC				
-			
-	jnb Flags3.FET_SWAP, tone_BC				
-	BcomFET_on		; BcomFET on				
-	ApwmFET_on		; ApwmFET on				
-	mov	A, Beep_Strength				
-	djnz	ACC, $						
-	ApwmFET_off		; ApwmFET off				
-	BcomFET_off		; BcomFET off				
-	jmp tone_AB					
-tone_BC:					
-	BcomFET_on		; BcomFET on				
-	CpwmFET_on		; CpwmFET on				
-	mov	A, Beep_Strength				
-	djnz	ACC, $						
-	CpwmFET_off		; CpwmFET off				
-	BcomFET_off		; BcomFET off				
-tone_AB:				
-	cpl Flags3.FET_SWAP					
-	Pop ACC				
-	mov Temp6, A				
-	mov Temp7, A				
-	Pop ACC				; pop variables off the stack, and restore them.				
-	Mov Temp1, A  				
-	Pop ACC				  				
-	Mov Temp5, A  				
-	Mov Temp2, A  		; make copy of temp5 to work with.				
-						; run minimum delay loop to keep our tone within the frquency range we're after (~3khz-800hz ideally)				
-music_base_delay:				
-	mov	A, #100									;30us wait				
-	djnz	ACC, $									; timing delay				
-	djnz	Temp7, music_base_delay        			; base delay loop run count 				
-music_variable_delay:							 	; changing delay (adjust tone frequency)				
-	mov	A, #75										; 17us wait				
-	djnz	ACC, $                        			; timing delay				
-	djnz	Temp2, music_variable_delay  			; run this loop #Temp5 times				
-	jb		Flags3.FET_SWAP, music_inner_loop		
-	djnz	Temp1, music_inner_loop					; 		
-	djnz	Temp3, dec_again		
-	ret		
-dec_again:			
-	djnz	Temp3, music_outer_loop				    ; total length of tone				
-	ret					
-			
-
-
+	
 ;**** **** **** **** **** **** **** **** **** **** **** **** ****
 ;
 ; Switch power off routine
@@ -3600,28 +3454,10 @@ led_3_done:
 ;		Music Routines		
 ;		
 ;**** **** **** **** **** **** **** **** **** **** **** **** ****		
-music_a4:		
-	mov	Temp3, #220 ;55 	;length of tone		
-	mov Temp4, #54			;number of delay loop1 cycles (tone frequency)		
-	mov Temp5, #2			;number of delay loop2 cycles (octave range?/large step?)		
-	jmp music
-			
 music_as4:		
-	mov	Temp3, #58 				
-	mov Temp4, #29		
-	mov Temp5, #2		
-	jmp music		
-			
-music_b4:		
-	mov	Temp3, #62 				
-	mov Temp4, #4		
-	mov Temp5, #2		
-	jmp music		
-			
-music_e4:		
-	mov	Temp3, #164 ;41 				
-	mov Temp4, #6		
-	mov Temp5, #3		
+	mov	Temp3, #58 				;length of tone
+	mov Temp4, #29				;number of delay loop1 cycles (tone frequency)
+	mov Temp5, #2				;number of delay loop2 cycles (octave range?/large step?)
 	jmp music		
 			
 music_f1:		
@@ -3660,11 +3496,6 @@ music_c:
 	mov Temp5, #1		
 	jmp music		
 			
-music_d:		
-	mov	Temp3, #73 				
-	mov Temp4, #140		
-	mov Temp5, #1		
-	jmp music		
 music_d2:		
 	mov	Temp3, #146 ;73 				
 	mov Temp4, #140		
@@ -3683,12 +3514,6 @@ music_e:
 	mov Temp5, #1		
 	jmp music		
 
-music_e2:		
-	mov	Temp3, #164 				
-	mov Temp4, #103		
-	mov Temp5, #1		
-	jmp music		
-			
 music_f:		
 	mov	Temp3, #87 				
 	mov Temp4, #86		
@@ -3854,10 +3679,11 @@ pgm_start:
 ; Choose Music Routine based on Beacon Delay Setting		
 ; --------------------		
 ; 1) OEM Tones		
-; 2) CZ Tones		
-; 3) Game of Thrones Startup Tone		
-; 4) Imperial March Startup Tone		
-; 5) Harrison Gale 		
+; 141) Super Mario Bros					by Ramon Martins
+; 142) Dr. Dre - The Next Episode		by Ramon Martins
+; 143) The 7th Element - Vitas			by Ramon Martins
+; 144) Game of Thrones Startup Tone
+; 145) Imperial March Startup Tone
 	
 	mov	A, Beep_Strength						
 	dec A		
@@ -3868,27 +3694,48 @@ pgm_start:
 Tone_Selection:
 	Set_LED_0
 	clr Flags3.MUTE
-	subb A, #89
+	subb A, #139
 	dec A		
-	jz Startup_IM		
+	jz Startup_SM
+	dec A
+	jz DD_Bounce
+	dec A
+	jz T7E_Bounce	
 	dec A		
-	jz Startup_CZ 								
+	jz Startup_IM										
 	dec A		
-	jz Startup_GoT										
-	dec A		
-	jz HG_Bounce		
+	jz Startup_GoT	
 	ljmp OEM_Tones
 
-HG_Bounce:
-	ljmp Startup_HG	
-										 		
-Startup_CZ:		
-	setb Flags3.CZ_TONES		
-	call startup_wave1		
-	call startup_wave1		
-	call startup_wave1		
+DD_Bounce:
+    ljmp Startup_DD
+	
+T7E_Bounce:
+    ljmp Startup_T7E
+
+Startup_SM:		
+	call wait200ms		
+	call music_e
+	call music_e
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_e
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_c
+	call music_e
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_g4
+	call wait200ms
+	call wait30ms
+	call wait30ms
+	call music_g
 	jmp startup_end				
-			
+
 Startup_IM:		
 	call wait200ms		
 	call music_f1		
@@ -3981,88 +3828,115 @@ Startup_GoT:
 	call music_f		
 	call wait10ms		
 	call music_f4			
-	jmp startup_end
+	jmp startup_end		
+
+Startup_DD:		
+	call wait200ms		
+	call music_ds
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call music_as4
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call music_as4
+	call wait100ms
+	call wait100ms
+	call music_c
+	call wait100ms
+	call wait100ms
+	call music_as4
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call music_c
+	call wait100ms
+	call wait100ms
+	call music_e
+	call wait100ms
+	call wait100ms
+	call music_c
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call music_c
+	call wait100ms
+	call wait100ms
+	call music_e
+	call wait100ms
+	call wait100ms
+	call music_ds
+	call wait100ms
+	call wait100ms
+	call music_e
+	call wait100ms
+	call wait100ms
+	call music_ds
+	jmp startup_end	
 			
-Startup_HG:			
-	call music_a4		
-	call wait10ms		
-	call music_a4		
-	call wait10ms		
-	call wait10ms		
-	call music_e		
-	call wait3ms		
-	call music_e		
-	call wait3ms		
-	call music_e		
-	call wait3ms		
-	call music_e		
-	call wait10ms		
-	call wait10ms		
-	call music_g4		
-	call music_g4		
-	call wait10ms		
-	call music_g4		
-	call music_g4		
-	call wait10ms		
-	call wait10ms		
-	call music_d		
-	call wait3ms		
-	call music_d		
-	call wait3ms		
-	call music_d		
-	call wait3ms		
-	call music_d		
-	call wait10ms		
-	call wait10ms		
-	call music_f4		
-	call music_f4		
-	call wait10ms		
-	call music_f4		
-	call music_f4		
-	call wait10ms		
-	call wait10ms		
-	call music_c		
-	call wait3ms		
-	call music_c		
-	call wait3ms		
-	call music_c		
-	call wait3ms		
-	call music_c		
-	call wait10ms		
-	call wait10ms		
-	call music_e4		
-	call wait10ms		
-	call music_e4		
-	call wait10ms		
-	call wait10ms		
-	call music_b4		
-	call wait3ms		
-	call music_b4		
-	call wait3ms		
-	call music_b4		
-	call wait3ms		
-	call music_b4		
-	call wait10ms		
-	call wait10ms		
-	call music_a4		
-	call music_a4		
-	call wait10ms		
-	call wait10ms		
-	call music_g4		
-	call music_g4		
-	call music_g4		
-	call music_g4		
-	call wait10ms		
-	call wait10ms		
-	call music_f4		
-	call music_f4		
-	call music_f4		
-	call music_f4		
-	call wait10ms		
-	call wait10ms		
-	call music_e4		
-	call music_e4
-	jmp startup_end			
+Startup_T7E:		
+	call wait200ms		
+	call music_c
+	call music_c
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call music_g
+	call wait100ms
+	call wait100ms
+	call wait100ms
+	call music_g
+	call wait30ms
+	call wait30ms
+	call music_f
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_g
+	call wait100ms
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_f
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_ds
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_f
+	call wait100ms
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_f
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_ds
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_c
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_ds	
+	call wait100ms
+	call wait30ms
+	call wait30ms
+	call music_f
+	jmp startup_end					
 
 OEM_Tones:		
 	call beep_f1
@@ -4468,7 +4342,7 @@ beep_delay_set:
 	mov	Temp1, #Pgm_Beacon_Strength
 	mov	Beep_Strength, @Temp1
 	clr 	IE_EA				; Disable all interrupts
-	call beep_beacon	; Signal that there is no signal
+	call beep_f4	; Signal that there is no signal
 	setb	IE_EA				; Enable all interrupts
 	mov	Temp1, #Pgm_Beep_Strength
 	mov	Beep_Strength, @Temp1
