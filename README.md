@@ -1,5 +1,7 @@
 #### --> This is only for ESCs BLHeli_S SiLabs 8 bits, NOT FOR BLHELI32!!! <--
 
+#### --> READ ALL THE README.MD FOR SEE THE DOWNLOAD LINK AND INSTRUCTIONS!!! <--
+
 This Project is just a update of the <a href="https://github.com/cleanflight/blheli-multishot/tree/master/BLHeli_S%20SiLabs" target="_blank">Startup Tones Project</a>, so the credits go to them.
 
 The contributors stopped update the files, so i continued the project, BUT I WONT DO ANY MODIFICATION IN THE ORIGINAL PROJECT OF STARTUP TONES.
